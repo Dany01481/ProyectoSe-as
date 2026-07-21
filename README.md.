@@ -1,0 +1,29 @@
+# LENGUA DE SEÑAS
+    Poyecto para la materia de Programacion Orientada a Objetos, por las alumnas: Lilia Lizbeth Crisanto Hernandez, Daniela Díaz de León Sánchez
+# DESCRIPCION DEL PROYECTO
+  Aprender lengua de señas a partir de varias actividades, donde el estudiante, profesor y/o administrador puede ver el progreso con esta enseñanza. Organiza adecuadamente las señas por niveles de dificultad, y administrara un diccionario categorizado de señas, 
+  registrando  y evaluando en distintos niveles de aprendizaje. Evaluará lecciones mediante diferentes tipos de ejercicios (dactilogía, vocabulario temático y frases contextuales) el progreso del alumno se calificará con:
+  <<principiante>>
+  <<intermedio>>
+  <<avanzado>>
+
+## INFORMACION QUE ADMINISTRARÁ:
+  Datos del estudiante, catálogo de señas (con descripcion grafica, instrucciones de movimiento)
+
+## OPERCIONES QUE REALIZARÁ: 
+  Registrar estudiantes, agregar señas al diccionario, realizar evaluaciones de conocimiento, calcular calificaciones,ponderadas según el tipo de ejercicio e imprimir reportes de progreso.
+
+## RESULTADOS ESPERADOS:
+  un informe de rendimiento del alumno con el desglose de señas dominadas, puntaje obtenido y nivel alcanzado (principiante, intermedio, avanzado)
+
+## PILARES DE POO:
+  |Herencia: clase abtracta madre Persona y subclases especializadas -> Estudiante
+  
+  |Polimorfismo: La clase Evaluacion procesará una colección de tipo ArrayList<Ejercicio>. Durante el cálculo de la nota final, iterará sobre la lista invocando a ejercicio.calcularPuntajeObtenido(respuesta, tiempo), ejecutando el comportamiento correspondiente 
+  según el tipo de ejercicio en tiempo de ejecución.
+  
+  |Encapsulamiento: Atributos privados
+  
+
+  
+  
