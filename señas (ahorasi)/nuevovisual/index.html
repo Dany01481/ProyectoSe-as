@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SignLearn LSM - Entrenador y Evaluación</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --admin-color: #d97706;
+      --admin-hover: #b45309;
+      --success: #10b981;
+      --success-hover: #059669;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .container { width: 100%; max-width: 850px; }
+
+    .vista { display: none !important; }
+    .vista.activa { display: block !important; }
+
+    .card { background: var(--card-bg); padding: 28px; border-radius: var(--radius); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); text-align: center; }
+    .card-header { margin-bottom: 20px; }
+    .card-header h1 { font-size: 1.6rem; color: var(--text-main); }
+    .card-header p { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+
+    .selector-rol { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .btn-rol { padding: 10px 20px; border: 2px solid var(--border-color); background: white; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-rol.active { border-color: var(--primary); color: var(--primary); background: #e0e7ff; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; text-align: left; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; }
+    .form-group input, .form-group select { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; }
+
+    .btn { width: 100%; margin-top: 15px; padding: 12px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; }
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-admin { background-color: var(--admin-color); color: white; }
+    .btn-success { background-color: var(--success); color: white; }
+
+    /* CONTENEDOR CÁMARA */
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      height: 440px;
+      margin: 15px auto;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background-color: #000;
+    }
+
+    video { display: none; }
+    canvas { width: 100%; height: 100%; transform: scaleX(-1); }
+
+    .overlay-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8;
+      border: 2px solid #38bdf8;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      z-index: 10;
+    }
+
+    .admin-controls {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-link { display: inline-block; margin-top: 12px; color: var(--text-muted); font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div id="vista-login" class="vista activa">
+      <div class="card">
+        <div class="card-header">
+          <h1>🤟 SignLearn LSM</h1>
+          <p>Selecciona tu tipo de acceso para ingresar al sistema</p>
+        </div>
+
+        <div class="selector-rol">
+          <button type="button" class="btn-rol active" id="btn-modo-estudiante" onclick="cambiarModoLogin('estudiante')">Estudiante</button>
+          <button type="button" class="btn-rol" id="btn-modo-admin" onclick="cambiarModoLogin('admin')">Administrador</button>
+        </div>
+
+        <form id="form-estudiante">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" id="nombre" placeholder="Ej. Daniela" required>
+            </div>
+            <div class="form-group">
+              <label>Matrícula</label>
+              <input type="text" id="matricula" placeholder="Ej. 2026001" required>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="iniciarEstudiante()">Ingresar a Evaluación ➔</button>
+        </form>
+
+        <form id="form-admin" style="display: none;">
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label>Contraseña de Administrador</label>
+            <input type="password" id="pass-admin" placeholder="Ingresa contraseña (admin123)">
+          </div>
+          <button type="button" class="btn btn-admin" onclick="iniciarAdmin()">Ingresar al Modo Entrenador 🔑</button>
+        </form>
+
+      </div>
+    </div>
+
+    <div id="vista-camara" class="vista">
+      <div class="card">
+        
+        <h2 id="titulo-modo">Modo Práctica</h2>
+
+        <div id="panel-admin" class="admin-controls" style="display: none;">
+          <label><strong>Guardar Letra:</strong></label>
+          <select id="select-letra" style="padding: 5px; font-weight: bold;">
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="I">I</option><option value="L">L</option>
+            <option value="O">O</option><option value="U">U</option><option value="V">V</option>
+            <option value="W">W</option><option value="Y">Y</option>
+          </select>
+          <button type="button" class="btn btn-admin" style="margin: 0; width: auto;" onclick="guardarMuestraLetra()">📸 Capturar y Entrenar Seña</button>
+        </div>
+
+        <div id="panel-estudiante-info" style="display: none; margin-bottom: 10px;">
+          📌 <strong>Ejercicio de Java:</strong> <span id="texto-instruccion">Carga un ejercicio para comenzar...</span>
+        </div>
+
+        <div class="video-container">
+          <div class="overlay-badge" id="badge-letra">Seña: --</div>
+          <video id="input-video"></video>
+          <canvas id="output-canvas"></canvas>
+        </div>
+
+        <button id="btn-java" type="button" class="btn btn-success" onclick="cargarEjercicioJava()">⚡ Cargar Ejercicio desde Java</button>
+
+        <div>
+          <span class="nav-link" onclick="cerrarSesion()">← Salir / Cerrar Sesión</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // BASE DE DATOS LOCAL DE LETRAS (Se sincroniza con localStorage)
+    let baseDatosLetras = JSON.parse(localStorage.getItem('baseDatosLSM')) || {};
+    let landmarksActuales = null;
+    let cameraInstance = null;
+    let modoActual = 'estudiante'; // 'estudiante' o 'admin'
+
+    // 1. CONTROL DE ACCESO
+    function cambiarModoLogin(modo) {
+      if(modo === 'estudiante') {
+        document.getElementById('form-estudiante').style.display = 'block';
+        document.getElementById('form-admin').style.display = 'none';
+        document.getElementById('btn-modo-estudiante').classList.add('active');
+        document.getElementById('btn-modo-admin').classList.remove('active');
+      } else {
+        document.getElementById('form-estudiante').style.display = 'none';
+        document.getElementById('form-admin').style.display = 'block';
+        document.getElementById('btn-modo-admin').classList.add('active');
+        document.getElementById('btn-modo-estudiante').classList.remove('active');
+      }
+    }
+
+    function iniciarEstudiante() {
+      const nombre = document.getElementById('nombre').value.trim();
+      if(!nombre) { alert("Ingresa tu nombre"); return; }
+      
+      modoActual = 'estudiante';
+      document.getElementById('titulo-modo').innerText = `Evaluación LSM - Estudiante: ${nombre}`;
+      document.getElementById('panel-admin').style.display = 'none';
+      document.getElementById('panel-estudiante-info').style.display = 'block';
+      document.getElementById('btn-java').style.display = 'block';
+
+      abrirPantallaCamara();
+    }
+
+    function iniciarAdmin() {
+      const pass = document.getElementById('pass-admin').value;
+      if(pass !== "admin123") {
+        alert("Contraseña incorrecta. (Usa: admin123)");
+        return;
+      }
+
+      modoActual = 'admin';
+      document.getElementById('titulo-modo').innerText = `🛠️ Panel Admin: Entrenador de Señas`;
+      document.getElementById('panel-admin').style.display = 'flex';
+      document.getElementById('panel-estudiante-info').style.display = 'none';
+      document.getElementById('btn-java').style.display = 'none';
+
+      abrirPantallaCamara();
+    }
+
+    function abrirPantallaCamara() {
+      document.getElementById('vista-login').classList.remove('activa');
+      document.getElementById('vista-camara').classList.add('activa');
+      iniciarMediaPipe();
+    }
+
+    function cerrarSesion() {
+      if(cameraInstance) cameraInstance.stop();
+      document.getElementById('vista-camara').classList.remove('activa');
+      document.getElementById('vista-login').classList.add('activa');
+    }
+
+    // 2. MODO ADMIN: GUARDAR PUNTOS DE LA MANO (ENTRENAMIENTO)
+    function guardarMuestraLetra() {
+      if (!landmarksActuales) {
+        alert("No se detecta ninguna mano frente a la cámara.");
+        return;
+      }
+
+      const letraSeleccionada = document.getElementById('select-letra').value;
+
+      // Normalizar vectores con respecto a la muñeca (landmark 0)
+      const muñeca = landmarksActuales[0];
+      const vectoresNormalizados = landmarksActuales.map(p => ({
+        x: p.x - muñeca.x,
+        y: p.y - muñeca.y,
+        z: p.z - muñeca.z
+      }));
+
+      // Guardar en la base de datos local
+      baseDatosLetras[letraSeleccionada] = vectoresNormalizados;
+      localStorage.setItem('baseDatosLSM', JSON.stringify(baseDatosLetras));
+
+      alert(`✅ ¡Seña para la letra '${letraSeleccionada}' guardada con éxito!`);
+    }
+
+    // 3. RECONOCIMIENTO POR DISTANCIA EUCLIDIANA (COMPARAR CON LO ENTRENADO)
+    function clasificarLetraEntrenada(lm) {
+      if (Object.keys(baseDatosLetras).length === 0) {
+        return "Sin Entrenar";
+      }
+
+      const muñeca = lm[0];
+      const lmNorm = lm.map(p => ({
+        x: p.x - muñeca.x,
+        y: p.y - muñeca.y,
+        z: p.z - muñeca.z
+      }));
+
+      let mejorLetra = "Desconocida";
+      let menorDistancia = Infinity;
+
+      // Compara los vectores actuales contra los guardados por el admin
+      for (const [letra, plantilla] of Object.entries(baseDatosLetras)) {
+        let sumaDistancia = 0;
+
+        for (let i = 0; i < 21; i++) {
+          const dx = lmNorm[i].x - plantilla[i].x;
+          const dy = lmNorm[i].y - plantilla[i].y;
+          const dz = lmNorm[i].z - plantilla[i].z;
+          sumaDistancia += Math.sqrt(dx*dx + dy*dy + dz*dz);
+        }
+
+        if (sumaDistancia < menorDistancia) {
+          menorDistancia = sumaDistancia;
+          mejorLetra = letra;
+        }
+      }
+
+      // Si la diferencia es muy alta, significa que la postura no coincide
+      return menorDistancia < 1.2 ? mejorLetra : "Ajusta la seña...";
+    }
+
+    // 4. MEDIAPIPE Y CANVAS RENDER
+    function iniciarMediaPipe() {
+      const videoElement = document.getElementById('input-video');
+      const canvasElement = document.getElementById('output-canvas');
+      const badgeLetra = document.getElementById('badge-letra');
+      const canvasCtx = canvasElement.getContext('2d');
+
+      const hands = new Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+      });
+
+      hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.6
+      });
+
+      hands.onResults((results) => {
+        canvasElement.width = videoElement.videoWidth || 640;
+        canvasElement.height = videoElement.videoHeight || 480;
+
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+          landmarksActuales = results.multiHandLandmarks[0];
+
+          for (const landmarks of results.multiHandLandmarks) {
+            drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 4 });
+            drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2, radius: 4 });
+
+            const letraDetectada = clasificarLetraEntrenada(landmarks);
+            badgeLetra.innerText = `Seña: ${letraDetectada}`;
+          }
+        } else {
+          landmarksActuales = null;
+          badgeLetra.innerText = `Seña: Sin mano`;
+        }
+
+        canvasCtx.restore();
+      });
+
+      cameraInstance = new Camera(videoElement, {
+        onFrame: async () => {
+          await hands.send({ image: videoElement });
+        },
+        width: 640,
+        height: 480
+      });
+
+      cameraInstance.start();
+    }
+
+    // 5. CORDENADA PETICIÓN A SERVIDOR JAVA
+    async function cargarEjercicioJava() {
+      const instruccionElemento = document.getElementById('texto-instruccion');
+      instruccionElemento.innerText = "Consultando a Java...";
+
+      try {
+        const response = await fetch('http://localhost:8080/api/ejercicio');
+        const data = await response.json();
+        instruccionElemento.innerHTML = `<strong>${data.instruccion}</strong> (${data.tiempo}s)`;
+      } catch (e) {
+        instruccionElemento.innerText = "Error de conexión con Servidor Java.";
+      }
+    }
+  </script>
+
+</body>
+</html>

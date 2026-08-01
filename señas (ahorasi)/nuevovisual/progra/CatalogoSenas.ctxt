@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=CatalogoSenas
+comment1.params=
+comment1.target=CatalogoSenas()
+comment2.params=significado
+comment2.target=Sena\ buscarPorSignificado(java.lang.String)
+comment3.params=categoria
+comment3.target=java.util.ArrayList\ buscarPorCategoria(java.lang.String)
+numComments=4

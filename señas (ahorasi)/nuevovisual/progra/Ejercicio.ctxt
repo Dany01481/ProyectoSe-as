@@ -1,0 +1,23 @@
+#BlueJ class context
+comment0.target=Ejercicio
+comment1.params=ideEjercicio\ puntBase\ tiempoLimiteSeg\ estudiante
+comment1.target=Ejercicio(java.lang.String,\ int,\ int,\ Estudiante)
+comment10.params=
+comment10.target=void\ iniciarEjercicio()
+comment2.params=
+comment2.target=java.lang.String\ getIdeEjercicio()
+comment3.params=ideEjercicio
+comment3.target=void\ setIdeEjercicio(java.lang.String)
+comment4.params=
+comment4.target=int\ getPuntBase()
+comment5.params=puntBase
+comment5.target=void\ setPuntBase(int)
+comment6.params=
+comment6.target=int\ getTiempoLimiteSeg()
+comment7.params=tiempoLimiteSeg
+comment7.target=void\ setTiempoLimiteSeg(int)
+comment8.params=
+comment8.target=double\ getPuntaje()
+comment9.params=puntaje
+comment9.target=void\ setPuntaje(double)
+numComments=11

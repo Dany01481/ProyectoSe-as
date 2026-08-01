@@ -1,0 +1,23 @@
+#BlueJ class context
+comment0.target=Estudiante
+comment1.params=id\ nombre\ correo\ numMatricula\ nivelActual\ puntosAcumulados
+comment1.target=Estudiante(java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ java.lang.String,\ int)
+comment10.params=
+comment10.target=void\ mostrarDatos()
+comment2.params=
+comment2.target=java.lang.String\ getNumMatricula()
+comment3.params=numMatricula
+comment3.target=void\ setNumMatricula(java.lang.String)
+comment4.params=
+comment4.target=java.lang.String\ getNivelActual()
+comment5.params=nivelActual
+comment5.target=void\ setNivelActual(java.lang.String)
+comment6.params=
+comment6.target=int\ getPuntosAcumulados()
+comment7.params=puntos
+comment7.target=void\ sumarPuntos(int)
+comment8.params=
+comment8.target=java.util.ArrayList\ getListaEvaluacion()
+comment9.params=ev
+comment9.target=void\ agregarEvaluacion(Evaluacion)
+numComments=11

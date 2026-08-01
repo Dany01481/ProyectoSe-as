@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=Evaluacion
+comment1.params=folioEvaluacion\ fecha
+comment1.target=Evaluacion(java.lang.String,\ java.lang.String)
+comment2.params=
+comment2.target=java.lang.String\ getFolioEvaluacion()
+comment3.params=folioEvaluacion
+comment3.target=void\ setFolioEvaluacion(java.lang.String)
+comment4.params=
+comment4.target=java.lang.String\ getFecha()
+comment5.params=fecha
+comment5.target=void\ setFecha(java.lang.String)
+comment6.params=
+comment6.target=java.util.ArrayList\ getEjercicios()
+comment7.params=ejercicio
+comment7.target=void\ agregarEjercicio(Ejercicio)
+comment8.params=
+comment8.target=double\ calcularPromedio()
+numComments=9

@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=EjercicioTraduccion
+comment1.params=ideEjercicio\ puntBase\ tiempoLimiteSeg\ estudiante\ frase\ contexto
+comment1.target=EjercicioTraduccion(java.lang.String,\ int,\ int,\ Estudiante,\ int,\ java.lang.String)
+comment2.params=
+comment2.target=int\ getFrase()
+comment3.params=frase
+comment3.target=void\ setFrase(int)
+comment4.params=
+comment4.target=java.lang.String\ getContexto()
+comment5.params=contexto
+comment5.target=void\ setContexto(java.lang.String)
+comment6.params=
+comment6.target=void\ iniciarEjercicio()
+numComments=7
